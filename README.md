@@ -1,12 +1,12 @@
 # 🚗 Autos Colombia
 
-Sistema de gestión para un parqueadero de vehículos, desarrollado como proyecto académico para la asignatura de **Ingeniería de Software** en IU Digital.
+Sistema de gestión para un parqueadero de vehículos, desarrollado como proyecto académico para la asignatura de **Ingeniería de Software** de la **IU Digital**.
 
 ---
 
 ## 📋 Descripción
 
-**Autos Colombia** es una aplicación web de página única (SPA) que permite administrar las operaciones principales relacionadas con vehículos: registro, control de entradas y salidas, gestión de pagos e incidentes. Cuenta con autenticación de usuario, navegación entre módulos y una interfaz moderna con tema oscuro.
+**Autos Colombia** es una aplicación web que permite administrar las operaciones principales relacionadas con un parqueadero: registro, control de entradas y salidas, gestión de pagos e incidentes. Cuenta con autenticación de usuario, navegación entre módulos y una interfaz moderna con tema oscuro.
 
 ---
 
