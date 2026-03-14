@@ -20,6 +20,19 @@ export default function RegistrarPago() {
       return;
     }
     toast.success('Pago registrado exitosamente');
+    
+    const storedData = JSON.parse(sessionStorage.getItem('pagosData') || '[]');
+    const newRecord = {
+      id: Date.now(),
+      placa: pago.placa,
+      monto: Number(pago.monto),
+      fechaHora: pago.fechaHora,
+      metodoPago: pago.metodoPago,
+      estado: pago.estado
+    };
+    storedData.push(newRecord);
+    sessionStorage.setItem('pagosData', JSON.stringify(storedData));
+
     navigate('/pagos'); // Redireccionar a la vista de pagos
   };
 

@@ -11,14 +11,24 @@ export default function InicioSesion() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email === "admin" && password === "admin") {
-      toast.success("sesion iniciada correctamente");
+    
+    // Obtener los datos del usuario registrado desde sessionStorage
+    const storedUserStr = sessionStorage.getItem('userData');
+    const storedUser = storedUserStr ? JSON.parse(storedUserStr) : null;
+
+    const isValidAdmin = email === "admin" && password === "admin";
+    const isValidRegisteredUser = storedUser && email === storedUser.email && password === storedUser.password;
+
+    if (isValidAdmin || isValidRegisteredUser) {
+      const nombreUsuario = isValidRegisteredUser ? storedUser.nombre : "Administrador";
+      toast.success(`Sesión iniciada correctamente. Bienvenido ${nombreUsuario}`);
+      // Opcional: guardar información del usuario activo
+      sessionStorage.setItem('activeUser', JSON.stringify({ email, nombre: nombreUsuario }));
       navigate('/home');
     } else {
-      toast.error("Credenciales incorrectas (usa admin/admin)");
+      toast.error("Credenciales incorrectas");
     }
-    // Aquí iría la lógica de inicio de sesión
-    console.log("Iniciando sesión con:", { email, password });
+    console.log("Intento de inicio de sesión con:", { email, password });
   };
 
   return (
@@ -53,7 +63,7 @@ export default function InicioSesion() {
                 <Mail className="w-5 h-5 text-blue-300/50 group-focus-within:text-blue-400 transition-colors duration-300" />
               </div>
               <input
-                type="text"
+                type="email"
                 placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Home, Car, LogIn, LogOut, Hash, CalendarDays } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function RegistroVehiculos() {
+  const navigate = useNavigate();
   const [entrada, setEntrada] = useState({ placa: '', fechaHora: '' });
   const [salida, setSalida] = useState({ placa: '', fechaHora: '' });
 
@@ -14,7 +15,21 @@ export default function RegistroVehiculos() {
       return;
     }
     toast.success('Entrada registrada exitosamente');
+    
+    // Guardar en sessionStorage
+    const storedData = JSON.parse(sessionStorage.getItem('entradasSalidasData') || '[]');
+    const newRecord = {
+      id: Date.now(),
+      placa: entrada.placa,
+      tipo: 'Entrada',
+      fechaHora: entrada.fechaHora,
+      estado: 'Completado'
+    };
+    storedData.push(newRecord);
+    sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+
     setEntrada({ placa: '', fechaHora: '' });
+    navigate('/entradas-salidas');
   };
 
   const handleSalidaSubmit = (e) => {
@@ -24,7 +39,21 @@ export default function RegistroVehiculos() {
       return;
     }
     toast.success('Salida registrada exitosamente');
+    
+    // Guardar en sessionStorage
+    const storedData = JSON.parse(sessionStorage.getItem('entradasSalidasData') || '[]');
+    const newRecord = {
+      id: Date.now(),
+      placa: salida.placa,
+      tipo: 'Salida',
+      fechaHora: salida.fechaHora,
+      estado: 'Completado'
+    };
+    storedData.push(newRecord);
+    sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+
     setSalida({ placa: '', fechaHora: '' });
+    navigate('/entradas-salidas');
   };
 
   return (

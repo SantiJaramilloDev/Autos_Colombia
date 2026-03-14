@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, ArrowRightLeft, Plus, LogIn, LogOut, Calendar, Hash, Edit2, Trash2, Settings } from 'lucide-react';
 
@@ -10,6 +11,21 @@ const mockData = [
 ];
 
 export default function EntradasSalidas() {
+  const [data] = useState(() => {
+    const storedData = sessionStorage.getItem('entradasSalidasData');
+    if (storedData) {
+      return JSON.parse(storedData);
+    }
+    return mockData;
+  });
+
+  useEffect(() => {
+    // Sync to storage if initialized with mockData and it wasn't there
+    if (!sessionStorage.getItem('entradasSalidasData')) {
+      sessionStorage.setItem('entradasSalidasData', JSON.stringify(data));
+    }
+  }, [data]);
+
   return (
     <div className="w-full flex-col justify-center items-center min-h-screen p-6 md:p-12 font-sans antialiased relative bg-[#0B1120] flex grow">
       {/* Elementos decorativos de fondo */}
@@ -81,7 +97,7 @@ export default function EntradasSalidas() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-gray-300">
-                {mockData.map((registro) => (
+                {data.map((registro) => (
                   <tr
                     key={registro.id}
                     className="hover:bg-white/5 transition-colors duration-200 group"

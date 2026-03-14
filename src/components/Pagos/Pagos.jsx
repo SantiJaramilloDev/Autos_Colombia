@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, CreditCard, Plus, Calendar, Hash, DollarSign, Wallet, Edit2, Trash2, Settings } from 'lucide-react';
 
@@ -31,6 +32,18 @@ const formatCurrency = (amount) => {
 };
 
 export default function Pagos() {
+  const [data] = useState(() => {
+    const storedData = sessionStorage.getItem('pagosData');
+    if (storedData) return JSON.parse(storedData);
+    return mockDataPagos;
+  });
+
+  useEffect(() => {
+    if (!sessionStorage.getItem('pagosData')) {
+      sessionStorage.setItem('pagosData', JSON.stringify(data));
+    }
+  }, [data]);
+
   return (
     <div className="w-full flex-col justify-center items-center min-h-screen p-6 md:p-12 font-sans antialiased relative bg-[#0B1120] flex grow">
       {/* Elementos decorativos de fondo */}
@@ -109,7 +122,7 @@ export default function Pagos() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-gray-300">
-                {mockDataPagos.map((pago) => (
+                {data.map((pago) => (
                   <tr
                     key={pago.id}
                     className="hover:bg-white/5 transition-colors duration-200 group"

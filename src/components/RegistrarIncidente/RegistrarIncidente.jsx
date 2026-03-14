@@ -20,6 +20,19 @@ export default function RegistrarIncidente() {
       return;
     }
     toast.success('Incidente registrado exitosamente');
+    
+    const storedData = JSON.parse(sessionStorage.getItem('incidentesData') || '[]');
+    const newRecord = {
+      id: Date.now(),
+      placa: incidente.placa,
+      tipoDano: incidente.tipoDano,
+      descripcion: incidente.descripcion,
+      fecha: incidente.fecha,
+      estado: incidente.estado
+    };
+    storedData.push(newRecord);
+    sessionStorage.setItem('incidentesData', JSON.stringify(storedData));
+
     navigate('/incidentes'); // Redireccionar a la vista de incidentes
   };
 

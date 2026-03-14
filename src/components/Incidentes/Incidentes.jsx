@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, AlertTriangle, Plus, Hash, FileText, Calendar, ShieldAlert, Edit2, Trash2, Settings } from 'lucide-react';
 
@@ -24,6 +25,18 @@ const getEstadoColor = (estado) => {
 };
 
 export default function Incidentes() {
+  const [data] = useState(() => {
+    const storedData = sessionStorage.getItem('incidentesData');
+    if (storedData) return JSON.parse(storedData);
+    return mockDataIncidentes;
+  });
+
+  useEffect(() => {
+    if (!sessionStorage.getItem('incidentesData')) {
+      sessionStorage.setItem('incidentesData', JSON.stringify(data));
+    }
+  }, [data]);
+
   return (
     <div className="w-full flex-col justify-center items-center min-h-screen p-6 md:p-12 font-sans antialiased relative bg-[#0B1120] flex grow">
       {/* Elementos decorativos de fondo */}
@@ -107,7 +120,7 @@ export default function Incidentes() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-gray-300">
-                {mockDataIncidentes.map((incidente) => (
+                {data.map((incidente) => (
                   <tr
                     key={incidente.id}
                     className="hover:bg-white/5 transition-colors duration-200 group"

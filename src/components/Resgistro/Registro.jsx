@@ -17,10 +17,14 @@ export default function Registro() {
       toast.error("Las contraseñas no coinciden");
       return;
     }
+    
+    // Guardar usuario en sessionStorage
+    const userData = { nombre, email, password };
+    sessionStorage.setItem('userData', JSON.stringify(userData));
+
     toast.success("registro completado");
     navigate('/');
-    // Aquí iría la lógica de registro
-    console.log("Registrando usuario con:", { nombre, email, password });
+    console.log("Registrando usuario con:", userData);
   };
 
   return (
@@ -70,7 +74,7 @@ export default function Registro() {
                 <Mail className="w-5 h-5 text-blue-300/50 group-focus-within:text-blue-400 transition-colors duration-300" />
               </div>
               <input
-                type="text"
+                type="email"
                 placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
