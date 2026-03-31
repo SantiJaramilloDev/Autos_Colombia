@@ -1,16 +1,24 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, AlertTriangle, CalendarDays, Hash, ChevronLeft, FileText, ShieldAlert } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function RegistrarIncidente() {
   const navigate = useNavigate();
-  const [incidente, setIncidente] = useState({
-    placa: '',
-    tipoDano: '',
-    descripcion: '',
-    fecha: '',
-    estado: ''
+  const location = useLocation();
+  const editItem = location.state?.editItem;
+
+  const [incidente, setIncidente] = useState(() => {
+    if (editItem) {
+      return { ...editItem };
+    }
+    return {
+      placa: '',
+      tipoDano: '',
+      descripcion: '',
+      fecha: '',
+      estado: ''
+    };
   });
 
   const handleIncidenteSubmit = (e) => {
@@ -19,19 +27,29 @@ export default function RegistrarIncidente() {
       toast.error('Por favor completa todos los campos para registrar el incidente');
       return;
     }
-    toast.success('Incidente registrado exitosamente');
     
     const storedData = JSON.parse(sessionStorage.getItem('incidentesData') || '[]');
-    const newRecord = {
-      id: Date.now(),
-      placa: incidente.placa,
-      tipoDano: incidente.tipoDano,
-      descripcion: incidente.descripcion,
-      fecha: incidente.fecha,
-      estado: incidente.estado
-    };
-    storedData.push(newRecord);
-    sessionStorage.setItem('incidentesData', JSON.stringify(storedData));
+    
+    if (editItem) {
+      const index = storedData.findIndex(item => item.id === editItem.id);
+      if (index !== -1) {
+        storedData[index] = { ...incidente };
+        sessionStorage.setItem('incidentesData', JSON.stringify(storedData));
+        toast.success('Incidente actualizado exitosamente');
+      }
+    } else {
+      const newRecord = {
+        id: Date.now(),
+        placa: incidente.placa,
+        tipoDano: incidente.tipoDano,
+        descripcion: incidente.descripcion,
+        fecha: incidente.fecha,
+        estado: incidente.estado
+      };
+      storedData.push(newRecord);
+      sessionStorage.setItem('incidentesData', JSON.stringify(storedData));
+      toast.success('Incidente registrado exitosamente');
+    }
 
     navigate('/incidentes'); // Redireccionar a la vista de incidentes
   };
@@ -52,7 +70,7 @@ export default function RegistrarIncidente() {
               <AlertTriangle className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-linear-to-r from-red-100 to-white">
-              Registrar Incidente
+              {editItem ? 'Editar Incidente' : 'Registrar Incidente'}
             </h1>
           </div>
 
@@ -170,10 +188,10 @@ export default function RegistrarIncidente() {
             <div className="mt-8 pt-4 border-t border-gray-700/30">
               <button
                 type="submit"
-                className="w-full bg-linear-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-semibold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98]"
+                className="w-full bg-linear-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-semibold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98] cursor-pointer"
               >
                 <AlertTriangle className="w-5 h-5" />
-                Completar Registro de Incidente
+                {editItem ? 'Actualizar Incidente' : 'Completar Registro de Incidente'}
               </button>
             </div>
           </form>

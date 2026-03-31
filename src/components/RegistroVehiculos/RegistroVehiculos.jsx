@@ -1,12 +1,26 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Car, LogIn, LogOut, Hash, CalendarDays } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function RegistroVehiculos() {
   const navigate = useNavigate();
-  const [entrada, setEntrada] = useState({ placa: '', fechaHora: '' });
-  const [salida, setSalida] = useState({ placa: '', fechaHora: '' });
+  const location = useLocation();
+  const editItem = location.state?.editItem;
+
+  const [entrada, setEntrada] = useState(() => {
+    if (editItem && editItem.tipo === 'Entrada') {
+      return { placa: editItem.placa, fechaHora: editItem.fechaHora };
+    }
+    return { placa: '', fechaHora: '' };
+  });
+
+  const [salida, setSalida] = useState(() => {
+    if (editItem && editItem.tipo === 'Salida') {
+      return { placa: editItem.placa, fechaHora: editItem.fechaHora };
+    }
+    return { placa: '', fechaHora: '' };
+  });
 
   const handleEntradaSubmit = (e) => {
     e.preventDefault();
@@ -14,19 +28,29 @@ export default function RegistroVehiculos() {
       toast.error('Por favor completa todos los campos para entrada');
       return;
     }
-    toast.success('Entrada registrada exitosamente');
     
     // Guardar en sessionStorage
     const storedData = JSON.parse(sessionStorage.getItem('entradasSalidasData') || '[]');
-    const newRecord = {
-      id: Date.now(),
-      placa: entrada.placa,
-      tipo: 'Entrada',
-      fechaHora: entrada.fechaHora,
-      estado: 'Completado'
-    };
-    storedData.push(newRecord);
-    sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+    
+    if (editItem && editItem.tipo === 'Entrada') {
+      const index = storedData.findIndex(item => item.id === editItem.id);
+      if (index !== -1) {
+        storedData[index] = { ...editItem, placa: entrada.placa, fechaHora: entrada.fechaHora };
+        sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+        toast.success('Entrada actualizada exitosamente');
+      }
+    } else {
+      const newRecord = {
+        id: Date.now(),
+        placa: entrada.placa,
+        tipo: 'Entrada',
+        fechaHora: entrada.fechaHora,
+        estado: 'Completado'
+      };
+      storedData.push(newRecord);
+      sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+      toast.success('Entrada registrada exitosamente');
+    }
 
     setEntrada({ placa: '', fechaHora: '' });
     navigate('/entradas-salidas');
@@ -38,19 +62,29 @@ export default function RegistroVehiculos() {
       toast.error('Por favor completa todos los campos para salida');
       return;
     }
-    toast.success('Salida registrada exitosamente');
     
     // Guardar en sessionStorage
     const storedData = JSON.parse(sessionStorage.getItem('entradasSalidasData') || '[]');
-    const newRecord = {
-      id: Date.now(),
-      placa: salida.placa,
-      tipo: 'Salida',
-      fechaHora: salida.fechaHora,
-      estado: 'Completado'
-    };
-    storedData.push(newRecord);
-    sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+    
+    if (editItem && editItem.tipo === 'Salida') {
+      const index = storedData.findIndex(item => item.id === editItem.id);
+      if (index !== -1) {
+        storedData[index] = { ...editItem, placa: salida.placa, fechaHora: salida.fechaHora };
+        sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+        toast.success('Salida actualizada exitosamente');
+      }
+    } else {
+      const newRecord = {
+        id: Date.now(),
+        placa: salida.placa,
+        tipo: 'Salida',
+        fechaHora: salida.fechaHora,
+        estado: 'Completado'
+      };
+      storedData.push(newRecord);
+      sessionStorage.setItem('entradasSalidasData', JSON.stringify(storedData));
+      toast.success('Salida registrada exitosamente');
+    }
 
     setSalida({ placa: '', fechaHora: '' });
     navigate('/entradas-salidas');
@@ -95,7 +129,9 @@ export default function RegistroVehiculos() {
               <div className="p-3 bg-green-500/10 rounded-xl text-green-400 shadow-inner">
                 <LogIn className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-semibold text-white">Registrar Entrada</h2>
+              <h2 className="text-2xl font-semibold text-white">
+                {editItem && editItem.tipo === 'Entrada' ? 'Editar Entrada' : 'Registrar Entrada'}
+              </h2>
             </div>
 
             <form onSubmit={handleEntradaSubmit} className="flex flex-col gap-6 grow">
@@ -133,10 +169,10 @@ export default function RegistroVehiculos() {
               <div className="mt-auto pt-4">
                 <button
                   type="submit"
-                  className="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98]"
+                  className="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98] cursor-pointer"
                 >
                   <LogIn className="w-5 h-5" />
-                  Registrar Entrada
+                  {editItem && editItem.tipo === 'Entrada' ? 'Actualizar Entrada' : 'Registrar Entrada'}
                 </button>
               </div>
             </form>
@@ -150,7 +186,9 @@ export default function RegistroVehiculos() {
               <div className="p-3 bg-red-500/10 rounded-xl text-red-400 shadow-inner">
                 <LogOut className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-semibold text-white">Registrar Salida</h2>
+              <h2 className="text-2xl font-semibold text-white">
+                {editItem && editItem.tipo === 'Salida' ? 'Editar Salida' : 'Registrar Salida'}
+              </h2>
             </div>
 
             <form onSubmit={handleSalidaSubmit} className="flex flex-col gap-6 grow">
@@ -188,10 +226,10 @@ export default function RegistroVehiculos() {
               <div className="mt-auto pt-4">
                 <button
                   type="submit"
-                  className="w-full bg-linear-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.2)] hover:shadow-[0_0_30px_rgba(225,29,72,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98]"
+                  className="w-full bg-linear-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.2)] hover:shadow-[0_0_30px_rgba(225,29,72,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98] cursor-pointer"
                 >
                   <LogOut className="w-5 h-5" />
-                  Registrar Salida
+                  {editItem && editItem.tipo === 'Salida' ? 'Actualizar Salida' : 'Registrar Salida'}
                 </button>
               </div>
             </form>

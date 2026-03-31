@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Home, CreditCard, Plus, Calendar, Hash, DollarSign, Wallet, Edit2, Trash2, Settings } from 'lucide-react';
 
 const mockDataPagos = [
@@ -32,7 +33,8 @@ const formatCurrency = (amount) => {
 };
 
 export default function Pagos() {
-  const [data] = useState(() => {
+  const navigate = useNavigate();
+  const [data, setData] = useState(() => {
     const storedData = sessionStorage.getItem('pagosData');
     if (storedData) return JSON.parse(storedData);
     return mockDataPagos;
@@ -43,6 +45,17 @@ export default function Pagos() {
       sessionStorage.setItem('pagosData', JSON.stringify(data));
     }
   }, [data]);
+
+  const handleDelete = (id) => {
+    const newData = data.filter(item => item.id !== id);
+    setData(newData);
+    sessionStorage.setItem('pagosData', JSON.stringify(newData));
+    toast.success('Pago eliminado exitosamente');
+  };
+
+  const handleEdit = (pago) => {
+    navigate('/registrar-pago', { state: { editItem: pago } });
+  };
 
   return (
     <div className="w-full flex-col justify-center items-center min-h-screen p-6 md:p-12 font-sans antialiased relative bg-[#0B1120] flex grow">
@@ -162,13 +175,15 @@ export default function Pagos() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
                         <button
-                          className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                          onClick={() => handleEdit(pago)}
+                          className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors cursor-pointer"
                           title="Editar"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                          onClick={() => handleDelete(pago.id)}
+                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors cursor-pointer"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />

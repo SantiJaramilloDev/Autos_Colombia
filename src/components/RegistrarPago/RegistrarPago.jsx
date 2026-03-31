@@ -1,16 +1,24 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, CreditCard, DollarSign, CalendarDays, Hash, ChevronLeft, Wallet, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function RegistrarPago() {
   const navigate = useNavigate();
-  const [pago, setPago] = useState({
-    placa: '',
-    monto: '',
-    fechaHora: '',
-    metodoPago: '',
-    estado: ''
+  const location = useLocation();
+  const editItem = location.state?.editItem;
+
+  const [pago, setPago] = useState(() => {
+    if (editItem) {
+      return { ...editItem };
+    }
+    return {
+      placa: '',
+      monto: '',
+      fechaHora: '',
+      metodoPago: '',
+      estado: ''
+    };
   });
 
   const handlePagoSubmit = (e) => {
@@ -19,19 +27,29 @@ export default function RegistrarPago() {
       toast.error('Por favor completa todos los campos para registrar el pago');
       return;
     }
-    toast.success('Pago registrado exitosamente');
     
     const storedData = JSON.parse(sessionStorage.getItem('pagosData') || '[]');
-    const newRecord = {
-      id: Date.now(),
-      placa: pago.placa,
-      monto: Number(pago.monto),
-      fechaHora: pago.fechaHora,
-      metodoPago: pago.metodoPago,
-      estado: pago.estado
-    };
-    storedData.push(newRecord);
-    sessionStorage.setItem('pagosData', JSON.stringify(storedData));
+    
+    if (editItem) {
+      const index = storedData.findIndex(item => item.id === editItem.id);
+      if (index !== -1) {
+        storedData[index] = { ...pago, monto: Number(pago.monto) };
+        sessionStorage.setItem('pagosData', JSON.stringify(storedData));
+        toast.success('Pago actualizado exitosamente');
+      }
+    } else {
+      const newRecord = {
+        id: Date.now(),
+        placa: pago.placa,
+        monto: Number(pago.monto),
+        fechaHora: pago.fechaHora,
+        metodoPago: pago.metodoPago,
+        estado: pago.estado
+      };
+      storedData.push(newRecord);
+      sessionStorage.setItem('pagosData', JSON.stringify(storedData));
+      toast.success('Pago registrado exitosamente');
+    }
 
     navigate('/pagos'); // Redireccionar a la vista de pagos
   };
@@ -52,7 +70,7 @@ export default function RegistrarPago() {
               <CreditCard className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-100 to-white">
-              Registrar Pago
+              {editItem ? 'Editar Pago' : 'Registrar Pago'}
             </h1>
           </div>
 
@@ -171,10 +189,10 @@ export default function RegistrarPago() {
             <div className="mt-8 pt-4 border-t border-gray-700/30">
               <button
                 type="submit"
-                className="w-full bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98]"
+                className="w-full bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98] cursor-pointer"
               >
                 <CreditCard className="w-5 h-5" />
-                Completar Registro de Pago
+                {editItem ? 'Actualizar Pago' : 'Completar Registro de Pago'}
               </button>
             </div>
           </form>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Home, ArrowRightLeft, Plus, LogIn, LogOut, Calendar, Hash, Edit2, Trash2, Settings } from 'lucide-react';
 
 const mockData = [
@@ -11,7 +12,8 @@ const mockData = [
 ];
 
 export default function EntradasSalidas() {
-  const [data] = useState(() => {
+  const navigate = useNavigate();
+  const [data, setData] = useState(() => {
     const storedData = sessionStorage.getItem('entradasSalidasData');
     if (storedData) {
       return JSON.parse(storedData);
@@ -25,6 +27,17 @@ export default function EntradasSalidas() {
       sessionStorage.setItem('entradasSalidasData', JSON.stringify(data));
     }
   }, [data]);
+
+  const handleDelete = (id) => {
+    const newData = data.filter(item => item.id !== id);
+    setData(newData);
+    sessionStorage.setItem('entradasSalidasData', JSON.stringify(newData));
+    toast.success('Registro eliminado exitosamente');
+  };
+
+  const handleEdit = (registro) => {
+    navigate('/registro-vehiculos', { state: { editItem: registro } });
+  };
 
   return (
     <div className="w-full flex-col justify-center items-center min-h-screen p-6 md:p-12 font-sans antialiased relative bg-[#0B1120] flex grow">
@@ -140,13 +153,15 @@ export default function EntradasSalidas() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
                         <button
-                          className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                          onClick={() => handleEdit(registro)}
+                          className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors cursor-pointer"
                           title="Editar"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                          onClick={() => handleDelete(registro.id)}
+                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors cursor-pointer"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
